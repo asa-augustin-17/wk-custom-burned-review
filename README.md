@@ -24,7 +24,16 @@ Open http://localhost:5173, paste a WaniKani [personal access token](https://www
 3. Press **Start review**. Enter submits and moves on, and Backspace wipes an answer so you can retry.
 4. Once an item passes on enough separate days (the graduation threshold), remove its tag from the item page or the session end screen.
 
-Your review history lives only in this browser. Use **Settings → Review history → Export stats** to back it up.
+## Backing up your review history
+
+Your streaks and review counts are stored only in this browser's local storage (IndexedDB). They are lost if you clear site data, use a private window, switch browsers, or press **Clear all local data**. WaniKani data itself is safe, since sync re-downloads it.
+
+Don't rely on the browser to keep your history. Save it as a file instead:
+
+- **Download:** Settings → Review history → **Export stats** saves a `wanikani-burned-stats-YYYY-MM-DD.json` file. Do this regularly, for example after each review session, and keep the file somewhere safe (a synced folder works well).
+- **Upload:** Settings → Review history → **Import stats…** loads a file back in. Importing merges: for each item the more recent record wins, so uploading an older backup never erases newer progress.
+
+This is also how to move your history to another browser or computer.
 
 ## Scripts
 
