@@ -6,7 +6,7 @@ import type { SubjectMap } from '../store/db';
 import { SubjectGlyph } from './SubjectGlyph';
 
 export type TypeFilter = 'all' | 'kanji' | 'vocabulary';
-export type SortKey = 'level' | 'meaning' | 'streak' | 'lastReviewed';
+export type SortKey = 'item' | 'meaning' | 'reading' | 'level' | 'streak' | 'lastReviewed';
 
 export interface ListPrefs {
   type: TypeFilter;
@@ -19,6 +19,15 @@ export const DEFAULT_LIST_PREFS: ListPrefs = { type: 'all', sort: 'level', desc:
 
 const matchesType = (filter: TypeFilter, t: SubjectType) =>
   filter === 'all' || filter === t || (filter === 'vocabulary' && t === 'kana_vocabulary');
+
+const COLUMNS: { key: SortKey; label: string; className?: string }[] = [
+  { key: 'item', label: 'Item' },
+  { key: 'meaning', label: 'Meaning' },
+  { key: 'reading', label: 'Reading' },
+  { key: 'level', label: 'Lvl', className: 'num col-optional' },
+  { key: 'streak', label: 'Streak', className: 'num' },
+  { key: 'lastReviewed', label: 'Last reviewed', className: 'col-optional' },
+];
 
 interface Props {
   ids: number[];
@@ -47,8 +56,10 @@ export function ItemList({ ids, subjects, stats, graduationThreshold, prefs, onP
           r.s.data.meanings.some((m) => m.meaning.toLowerCase().includes(q)),
       );
     const cmp: Record<SortKey, (a: (typeof list)[0], b: (typeof list)[0]) => number> = {
-      level: (a, b) => a.s.data.level - b.s.data.level,
+      item: (a, b) => (a.s.data.characters ?? '').localeCompare(b.s.data.characters ?? '', 'ja'),
       meaning: (a, b) => a.meaning.localeCompare(b.meaning),
+      reading: (a, b) => (a.reading ?? '').localeCompare(b.reading ?? '', 'ja'),
+      level: (a, b) => a.s.data.level - b.s.data.level,
       streak: (a, b) => a.st.streak - b.st.streak,
       lastReviewed: (a, b) => (a.st.lastReviewedAt ?? '').localeCompare(b.st.lastReviewedAt ?? ''),
     };
@@ -80,8 +91,10 @@ export function ItemList({ ids, subjects, stats, graduationThreshold, prefs, onP
           <option value="vocabulary">Vocabulary</option>
         </select>
         <select value={prefs.sort} onChange={(e) => set({ sort: e.target.value as SortKey })} aria-label="Sort by">
-          <option value="level">Level</option>
+          <option value="item">Item</option>
           <option value="meaning">Meaning</option>
+          <option value="reading">Reading</option>
+          <option value="level">Level</option>
           <option value="streak">Streak</option>
           <option value="lastReviewed">Last reviewed</option>
         </select>
@@ -97,12 +110,27 @@ export function ItemList({ ids, subjects, stats, graduationThreshold, prefs, onP
           <table className="items">
             <thead>
               <tr>
-                <th>Item</th>
-                <th>Meaning</th>
-                <th>Reading</th>
-                <th className="num col-optional">Lvl</th>
-                <th className="num">Streak</th>
-                <th className="col-optional">Last reviewed</th>
+                {COLUMNS.map((c) => {
+                  const active = prefs.sort === c.key;
+                  return (
+                    <th
+                      key={c.key}
+                      className={c.className}
+                      aria-sort={active ? (prefs.desc ? 'descending' : 'ascending') : 'none'}
+                    >
+                      <button
+                        className={`th-sort${active ? ' active' : ''}`}
+                        onClick={() => set(active ? { desc: !prefs.desc } : { sort: c.key, desc: false })}
+                        title={`Sort by ${c.label.toLowerCase()}`}
+                      >
+                        {c.label}
+                        <span className="sort-arrow" aria-hidden="true">
+                          {active ? (prefs.desc ? '▼' : '▲') : ''}
+                        </span>
+                      </button>
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
