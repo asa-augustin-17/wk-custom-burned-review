@@ -34,13 +34,13 @@ export function Dashboard({ sync, stats, settings, listPrefs, onListPrefsChange,
   if (!state?.lastSyncedAt) {
     return (
       <>
+        <SyncPanel sync={sync} />
         <section className="card empty-state">
           <h2>Getting your WaniKani data…</h2>
           <p className="muted">
-            The first sync downloads your notes and burned items. It takes a few seconds; progress is shown below.
+            The first sync downloads your notes and burned items. It takes a few seconds; progress is shown above.
           </p>
         </section>
-        <SyncPanel sync={sync} />
       </>
     );
   }
@@ -48,11 +48,12 @@ export function Dashboard({ sync, stats, settings, listPrefs, onListPrefsChange,
     const tnb = state.taggedNotBurnedIds.length;
     return (
       <>
+        <SyncPanel sync={sync} />
         <section className="card empty-state">
           <h2>No items to review</h2>
           <p>
             {tnb > 0
-              ? `You have ${tnb} item${tnb === 1 ? '' : 's'} tagged ${settings.tag}, but none are burned right now (see the list below).`
+              ? `You have ${tnb} item${tnb === 1 ? '' : 's'} tagged ${settings.tag}, but none are burned right now (see the list above).`
               : `None of your burned items have ${settings.tag} in their reading note.`}
           </p>
           <p className="muted">
@@ -60,7 +61,6 @@ export function Dashboard({ sync, stats, settings, listPrefs, onListPrefsChange,
             WaniKani, then press <strong>Sync now</strong>.
           </p>
         </section>
-        <SyncPanel sync={sync} />
       </>
     );
   }
@@ -68,6 +68,7 @@ export function Dashboard({ sync, stats, settings, listPrefs, onListPrefsChange,
 
   return (
     <>
+      <SyncPanel sync={sync} />
       <section className="card">
         {allGraduated && (
           <p className="all-graduated">
@@ -125,7 +126,6 @@ export function Dashboard({ sync, stats, settings, listPrefs, onListPrefsChange,
         />
       )}
 
-      <SyncPanel sync={sync} />
     </>
   );
 }
