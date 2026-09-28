@@ -8,7 +8,7 @@ See [SPEC.md](SPEC.md) for the full behaviour.
 
 ## Setup
 
-Requires Node.js 20 or newer. On this Mac, Node is installed at `~/.local/node` (added to `PATH` in `~/.zshrc`).
+Requires Node.js 20 or newer.
 
 ```bash
 npm install
