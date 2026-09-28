@@ -6,6 +6,7 @@ import { TYPE_LABEL } from '../logic/subject';
 import type { StudyMaterialMap, SubjectMap } from '../store/db';
 import { Markup } from './Markup';
 import { Readings } from './Readings';
+import { ContextSentences } from './ContextSentences';
 import { SubjectInfo } from './SubjectInfo';
 
 export interface SessionResult {
@@ -217,11 +218,15 @@ export function Quiz({ sessionIds, subjects, studyMaterials, onItemDone, onFinis
                   </p>
                 </div>
               )}
+              <ContextSentences subject={subject.data} />
             </>
           )}
 
           <p className="quiz-help muted small">
-            <kbd>Enter</kbd> {isSessionDone(session) ? 'finish' : 'next'}
+            <button className="link-button" onClick={next}>
+              {isSessionDone(session) ? 'Finish' : 'Next'}
+            </button>{' '}
+            <kbd>Enter</kbd>
             {' · '}
             <button className="link-button" onClick={retry}>
               Retry

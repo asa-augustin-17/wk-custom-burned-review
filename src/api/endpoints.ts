@@ -65,6 +65,8 @@ export interface Subject {
   slug: string;
   /** Vocabulary and kana vocabulary only, e.g. ["noun", "する verb"]. */
   parts_of_speech?: string[];
+  /** Vocabulary and kana vocabulary only. */
+  context_sentences?: { en: string; ja: string }[];
   hidden_at: string | null;
 }
 

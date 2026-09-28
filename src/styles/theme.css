@@ -922,3 +922,27 @@ kbd {
     height: 60px;
   }
 }
+
+/* ---------- context sentences ---------- */
+
+.context-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.context-list li + li {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.context-ja {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.context-en {
+  margin: 2px 0 0;
+  color: var(--muted);
+}

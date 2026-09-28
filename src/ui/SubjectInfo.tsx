@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { CachedStudyMaterial, CachedSubject } from '../store/db';
 import { Markup } from './Markup';
+import { ContextSentences } from './ContextSentences';
 import { Readings } from './Readings';
 
 function InfoRow({ label, children }: { label: string; children: ReactNode }) {
@@ -80,6 +81,7 @@ export function SubjectInfo({ subject, studyMaterial }: { subject: CachedSubject
                 )}
               </section>
             )}
+            <ContextSentences subject={d} />
           </>
         )}
     </>
