@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { SubjectType } from '../api/endpoints';
 import { primaryMeaning, primaryReading } from '../logic/subject';
 import { isGraduated, statsFor, type StatsMap } from '../logic/scheduler';
+import { bucketFor, bucketLabel, type StreakBucket } from '../logic/progress';
 import type { SubjectMap } from '../store/db';
 import { SubjectGlyph } from './SubjectGlyph';
 
@@ -13,9 +14,11 @@ export interface ListPrefs {
   sort: SortKey;
   desc: boolean;
   query: string;
+  /** Streak bucket chosen on the dashboard's progress chart, or null for all. */
+  streak: StreakBucket | null;
 }
 
-export const DEFAULT_LIST_PREFS: ListPrefs = { type: 'all', sort: 'level', desc: false, query: '' };
+export const DEFAULT_LIST_PREFS: ListPrefs = { type: 'all', sort: 'level', desc: false, query: '', streak: null };
 
 const matchesType = (filter: TypeFilter, t: SubjectType) =>
   filter === 'all' || filter === t || (filter === 'vocabulary' && t === 'kana_vocabulary');
@@ -46,6 +49,7 @@ export function ItemList({ ids, subjects, stats, graduationThreshold, prefs, onP
       .map((id) => subjects[id])
       .filter((s) => !!s)
       .filter((s) => matchesType(prefs.type, s.type))
+      .filter((s) => prefs.streak === null || bucketFor(stats, s.id, graduationThreshold) === prefs.streak)
       .map((s) => ({ s, meaning: primaryMeaning(s.data), reading: primaryReading(s.data), st: statsFor(stats, s.id) }))
       .filter(
         (r) =>
@@ -65,7 +69,7 @@ export function ItemList({ ids, subjects, stats, graduationThreshold, prefs, onP
     };
     const dir = prefs.desc ? -1 : 1;
     return list.sort((a, b) => dir * cmp[prefs.sort](a, b) || a.s.id - b.s.id);
-  }, [ids, subjects, stats, prefs]);
+  }, [ids, subjects, stats, prefs, graduationThreshold]);
 
   const set = (patch: Partial<ListPrefs>) => onPrefsChange({ ...prefs, ...patch });
 
@@ -73,8 +77,15 @@ export function ItemList({ ids, subjects, stats, graduationThreshold, prefs, onP
     <section className="card">
       <div className="row spread">
         <h2>Items</h2>
-        <span className="muted small">
-          {rows.length} of {ids.length}
+        <span className="row list-meta">
+          {prefs.streak !== null && (
+            <button className="filter-chip" onClick={() => set({ streak: null })} title="Clear streak filter">
+              {bucketLabel(prefs.streak)} ✕
+            </button>
+          )}
+          <span className="muted small">
+            {rows.length} of {ids.length}
+          </span>
         </span>
       </div>
       <div className="row list-controls">

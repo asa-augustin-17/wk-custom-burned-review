@@ -4,6 +4,7 @@ import type { Settings } from '../store/settings';
 import type { UseSync } from '../sync/useSync';
 import { ItemList, type ListPrefs } from './ItemList';
 import { SyncPanel } from './SyncPanel';
+import { ProgressPanel } from './ProgressPanel';
 
 interface Props {
   sync: UseSync;
@@ -25,6 +26,13 @@ export function Dashboard({ sync, stats, settings, listPrefs, onListPrefsChange,
   }
   const graduated = ids.filter((id) => isGraduated(stats[id], settings.graduationThreshold)).length;
   const nextSession = Math.min(settings.sessionSize, ids.length);
+  const typeScopedIds =
+    listPrefs.type === 'all'
+      ? ids
+      : ids.filter((id) => {
+          const t = state?.subjects[id]?.type;
+          return listPrefs.type === 'kanji' ? t === 'kanji' : t === 'vocabulary' || t === 'kana_vocabulary';
+        });
   const typeFilters = [
     { type: 'kanji', label: 'kanji', count: byType.kanji },
     { type: 'vocabulary', label: 'vocabulary', count: byType.vocabulary + byType.kana_vocabulary },
@@ -92,8 +100,11 @@ export function Dashboard({ sync, stats, settings, listPrefs, onListPrefsChange,
             <span className="stat-label">in next session</span>
           </div>
           <div className="stat">
-            <span className="stat-value">{graduated}</span>
-            <span className="stat-label">graduation candidates</span>
+            <span className="stat-value">
+              {graduated}
+              <span className="stat-of"> / {ids.length}</span>
+            </span>
+            <span className="stat-label">graduated</span>
           </div>
         </div>
         <div className="type-counts" role="group" aria-label="Filter items by type">
@@ -112,6 +123,14 @@ export function Dashboard({ sync, stats, settings, listPrefs, onListPrefsChange,
             );
           })}
         </div>
+        <ProgressPanel
+          ids={typeScopedIds}
+          stats={stats}
+          threshold={settings.graduationThreshold}
+          scopeLabel={listPrefs.type === 'all' ? null : listPrefs.type}
+          activeBucket={listPrefs.streak}
+          onBucketClick={(b) => onListPrefsChange({ ...listPrefs, streak: listPrefs.streak === b ? null : b })}
+        />
       </section>
 
       {state && ids.length > 0 && (
