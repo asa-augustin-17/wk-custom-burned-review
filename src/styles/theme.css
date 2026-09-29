@@ -946,3 +946,28 @@ kbd {
   margin: 2px 0 0;
   color: var(--muted);
 }
+
+/* ---------- guide ---------- */
+
+.guide .card p:last-child {
+  margin-bottom: 0;
+}
+
+.guide-steps {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.guide-steps li + li {
+  margin-top: 6px;
+}
+
+.guide-keys {
+  border-collapse: collapse;
+  margin: 4px 0 8px;
+}
+
+.guide-keys td {
+  padding: 4px 12px 4px 0;
+  vertical-align: top;
+}

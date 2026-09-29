@@ -7,6 +7,7 @@ import { clearSyncCache, getCacheOwner, loadStats, saveStats, setCacheOwner } fr
 import { applyTheme, loadSettings, loadToken, saveSettings, type Settings as SettingsT, type Theme } from './store/settings';
 import { useSync } from './sync/useSync';
 import { Settings } from './ui/Settings';
+import { Guide } from './ui/Guide';
 import { Dashboard } from './ui/Dashboard';
 import { ItemDetail } from './ui/ItemDetail';
 import { DEFAULT_LIST_PREFS, type ListPrefs } from './ui/ItemList';
@@ -20,6 +21,7 @@ const THEME_ICON: Record<Theme, string> = { system: '◐', light: '☀', dark: '
 type View =
   | { name: 'home' }
   | { name: 'settings' }
+  | { name: 'guide' }
   | { name: 'item'; id: number }
   | { name: 'quiz'; ids: number[] }
   | { name: 'end'; result: SessionResult; graduatedIds: number[] };
@@ -143,8 +145,15 @@ export function App() {
           >
             {THEME_ICON[settings.theme]}
           </button>
-          <button className={view.name !== 'settings' ? 'active' : ''} onClick={() => leaveQuizOk() && goHome()} disabled={!token}>
+          <button
+            className={view.name !== 'settings' && view.name !== 'guide' ? 'active' : ''}
+            onClick={() => leaveQuizOk() && goHome()}
+            disabled={!token}
+          >
             Home
+          </button>
+          <button className={view.name === 'guide' ? 'active' : ''} onClick={() => leaveQuizOk() && setView({ name: 'guide' })}>
+            Guide
           </button>
           <button className={view.name === 'settings' ? 'active' : ''} onClick={() => leaveQuizOk() && setView({ name: 'settings' })}>
             Settings
@@ -153,8 +162,11 @@ export function App() {
       </header>
 
       <main>
-        {view.name === 'settings' || !token ? (
+        {view.name === 'guide' ? (
+          <Guide tag={settings.tag} threshold={settings.graduationThreshold} />
+        ) : view.name === 'settings' || !token ? (
           <Settings
+            onOpenGuide={() => setView({ name: 'guide' })}
             token={token}
             stats={stats}
             onStatsImported={(s) => {

@@ -21,6 +21,7 @@ interface Props {
   onCleared: () => void;
   stats: StatsMap;
   onStatsImported: (stats: StatsMap) => void;
+  onOpenGuide: () => void;
 }
 
 /**
@@ -74,7 +75,7 @@ type Status =
   | { kind: 'ok'; username: string }
   | { kind: 'error'; message: string };
 
-export function Settings({ token, settings, onSettingsChange, onTokenValidated, onCleared, stats, onStatsImported }: Props) {
+export function Settings({ token, settings, onSettingsChange, onTokenValidated, onCleared, stats, onStatsImported, onOpenGuide }: Props) {
   const [draftToken, setDraftToken] = useState(token ?? '');
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
   const [confirmClear, setConfirmClear] = useState(false);
@@ -149,6 +150,13 @@ export function Settings({ token, settings, onSettingsChange, onTokenValidated, 
             This app finds your <strong>burned</strong> WaniKani items whose reading note contains{' '}
             <strong lang="ja">{settings.tag}</strong> and quizzes you on them. To start, paste a WaniKani API token below
             and press Validate.
+          </p>
+          <p>
+            New here?{' '}
+            <button className="link-button" onClick={onOpenGuide}>
+              Read the quick guide
+            </button>
+            .
           </p>
         </section>
       )}
