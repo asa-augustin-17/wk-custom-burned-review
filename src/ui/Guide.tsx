@@ -16,6 +16,10 @@ export function Guide({ tag, threshold }: Props) {
           vocabulary you’re afraid of forgetting. You choose them by adding <strong lang="ja">{tag}</strong> to their
           reading note on WaniKani.
         </p>
+        <p className="muted small">
+          Prefer a different tag? Change <strong>Reading tag string</strong> in Settings to any text you like, then press{' '}
+          <strong>Sync now</strong> on the Home tab.
+        </p>
       </section>
 
       <section className="card">
