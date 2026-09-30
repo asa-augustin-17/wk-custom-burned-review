@@ -6,7 +6,7 @@
 
 A local web app that finds my **burned** WaniKani **kanji and vocabulary** whose **reading note** contains the tag `復習`, and lets me quiz myself on them. I add the tag by hand to burned items I expect to forget. WaniKani doesn't schedule reviews for burned items, so this app provides its own lightweight review loop.
 
-It runs locally on my MacBook (`npm run dev`), talks directly to the WaniKani API v2 from the browser, and stores everything client-side. There is no backend.
+It is a static site hosted on GitHub Pages at https://asa-augustin-17.github.io/wk-custom-burned-review/, so users only need a browser and a WaniKani token. It talks directly to the WaniKani API v2 from the browser and stores everything client-side. There is no backend. It can also be run locally with `npm run dev` for development.
 
 Radicals are out of scope (I never review them). They are ignored even when tagged.
 
@@ -25,6 +25,7 @@ Radicals are out of scope (I never review them). They are ignored even when tagg
 - `idb-keyval` for IndexedDB persistence (cached API data and review stats)
 - Vitest for unit tests
 - Plain CSS with CSS variables, including light and dark themes via `prefers-color-scheme` plus a manual toggle. No UI framework.
+- Hosting: GitHub Pages (static files). A GitHub Actions workflow runs the tests, builds, and deploys on every push to `main`; a failing test stops the deploy. Production builds use the base path `/wk-custom-burned-review/`.
 
 ## 4. WaniKani API v2 facts
 
@@ -53,7 +54,8 @@ Radicals are out of scope (I never review them). They are ignored even when tagg
 
 ### 5.1 Header, setup and settings
 
-- Header: the pink **復習** logo and the title "WaniKani Burned Items Review", the username, a theme toggle (◐ system → ☀ light → ☾ dark), and Home / Settings.
+- Header: the pink **復習** logo and the title "WaniKani Burned Items Review", the username, a theme toggle (◐ system → ☀ light → ☾ dark), and Home / Guide / Settings.
+- **Guide** tab: a short first-time user guide (what the app does, getting started, reviewing keys, graduation, backups, the app's web address). It's reachable before a token is set, and the first-run welcome note links to it.
 - First run shows a welcome note and the settings screen with a password-type token input, a "Validate" button that calls `/user`, and a note saying the token is stored in this browser's localStorage.
 - Settings:
   - **Reading tag string**: default `復習`
@@ -79,12 +81,14 @@ Radicals are out of scope (I never review them). They are ignored even when tagg
 
 ### 5.3 Dashboard, item list and detail view
 
-- **Review card**: target item count, "in next session" count, and graduation candidates, plus a Start review button.
+- The **Sync** box sits at the top of the dashboard.
+- **Review card**: target item count, "in next session" count, and "graduated X / N", plus a Start review button.
+- **Progress to graduation** (in the Review card): a stacked bar and one clickable column per streak bucket (Not reviewed, Streak 0 up to threshold − 1, Graduated), with a summary line. The type filter scopes it, and clicking a column filters the item list to that streak (shown as a clearable chip).
 - **Type counts**: kanji and vocabulary counts. Clicking one filters the item list to that type; clicking again clears the filter.
-- **Item list**: characters, primary meaning, primary reading, level, streak, and last reviewed date. It can be searched, filtered by type, and sorted by level, meaning, streak, or last reviewed. Rows open the detail view on click or Enter. On narrow screens, Level and Last reviewed are hidden.
+- **Item list**: characters, primary meaning, primary reading, level, streak, and last reviewed date. It can be searched, filtered by type, and sorted by item, meaning, reading, level, streak, or last reviewed, by clicking a column header (again to reverse) or with the sort controls. Rows open the detail view on click or Enter. On narrow screens, Level and Last reviewed are hidden.
 - **Detail view** (Esc goes back), laid out like WaniKani's pages:
   - **Kanji**: one box with the meanings (primary and alternatives) and the readings grouped under On'yomi, Kun'yomi, and Nanori (when present). The group WK doesn't accept is dimmed, and the primary reading is bold. Kanji show no mnemonics and no meaning note.
-  - **Vocabulary**: a **Meaning** box (primary, alternatives, your synonyms, word type, explanation, meaning note) and a **Reading** box (readings, explanation). For vocabulary, WK's mnemonics are labelled "explanation". "Mnemonic" is reserved for kanji.
+  - **Vocabulary**: a **Meaning** box (primary, alternatives, your synonyms, word type, explanation, meaning note) and a **Reading** box (readings, explanation). For vocabulary, WK's mnemonics are labelled "explanation". "Mnemonic" is reserved for kanji. A **Context** box shows WK's context sentences (Japanese, with English below).
   - The reading note is not shown in the detail view.
   - Below: your review stats, a "Remove 復習 tag" button for graduated items still in the review set (§5.6), and a link to `document_url`.
 
@@ -96,11 +100,11 @@ Radicals are out of scope (I never review them). They are ignored even when tagg
   - Reading prompts bind `wanakana.bind(input, { IMEMode: true })` for IME-style kana conversion.
   - Meaning prompts use plain text input.
 - **Enter** submits. After a graded answer:
-  - **Correct**: show the accepted answers for that prompt (grouped readings for kanji) and, for vocabulary, the relevant explanation.
+  - **Correct**: show the accepted answers for that prompt (grouped readings for kanji) and, for vocabulary, the relevant explanation and context sentences.
   - **Incorrect**: show all the item's meaning and reading info (the same content as the detail view).
   - A link to the item's WK page.
   - The reading note is not shown on the quiz.
-- **Enter** again moves to the next prompt. The answer is recorded only at this point.
+- **Enter** again (or the clickable **Next**) moves to the next prompt. The answer is recorded only at this point. The footer reads "Next Enter · Retry Backspace · WaniKani page".
 - **Backspace** after any graded answer wipes it, and the prompt can be answered again as if never submitted (like the WK DoubleCheck userscript). This covers typos and lucky matches. There is no "mark correct" override.
 - "End session" (or navigating away) asks for confirmation. Unfinished items aren't counted.
 - The session end screen shows accuracy, items passed, the items missed, and any items that reached the graduation threshold (each with a Remove tag button). Enter returns to the dashboard.
@@ -178,20 +182,20 @@ Take `sessionSize` items and shuffle within the selection.
 src/
   api/        client.ts (fetch wrapper: headers, pagination, spacing, 429 retry), endpoints.ts
   sync/       sync.ts, useSync.ts
-  logic/      answers.ts, tag.ts, scheduler.ts, markup.ts, statsio.ts, subject.ts   ← pure, unit tested
+  logic/      answers.ts, tag.ts, scheduler.ts, progress.ts, markup.ts, statsio.ts, subject.ts   ← pure, unit tested
   store/      db.ts, settings.ts
-  ui/         Settings, Dashboard, SyncPanel, ItemList, ItemDetail, SubjectInfo, Readings,
-              Markup, SubjectGlyph, Quiz, SessionEnd, UntagButton
+  ui/         Settings, Guide, Dashboard, SyncPanel, ProgressPanel, ItemList, ItemDetail, SubjectInfo,
+              Readings, ContextSentences, Markup, SubjectGlyph, Quiz, SessionEnd, UntagButton
   styles/     theme.css
   App.tsx, main.tsx
+.github/workflows/deploy.yml   ← test, build, and deploy to GitHub Pages
 ```
 
 ## 9. Non-goals
 
 - Radicals.
 - Submitting reviews to WaniKani or resurrecting items through the API. Resurrection happens on the WK website, and the app just links there.
-- Multi-device sync or any backend.
-- Deployment. It's localhost only.
+- Multi-device sync or any backend. Hosting stays static; review history lives in each browser (export/import moves it).
 
 ## 10. Milestones
 

@@ -1,4 +1,5 @@
 const TOKEN_URL = 'https://www.wanikani.com/settings/personal_access_tokens';
+const APP_URL = 'https://asa-augustin-17.github.io/wk-custom-burned-review/';
 
 interface Props {
   tag: string;
@@ -15,6 +16,10 @@ export function Guide({ tag, threshold }: Props) {
           WaniKani stops reviewing items once they’re burned. This app lets you keep reviewing the burned kanji and
           vocabulary you’re afraid of forgetting. You choose them by adding <strong lang="ja">{tag}</strong> to their
           reading note on WaniKani.
+        </p>
+        <p>
+          It runs entirely in your browser, so there’s nothing to install. Bookmark{' '}
+          <a href={APP_URL}>{APP_URL.replace('https://', '')}</a> to come back to it.
         </p>
         <p className="muted small">
           Prefer a different tag? Change <strong>Reading tag string</strong> in Settings to any text you like, then press{' '}
@@ -90,8 +95,9 @@ export function Guide({ tag, threshold }: Props) {
       <section className="card">
         <h2>Keep a backup</h2>
         <p>
-          Your review history is saved only in this browser. Clearing browser data erases it. Use{' '}
-          <strong>Settings → Export stats</strong> now and then, and <strong>Import stats</strong> to restore it.
+          Your review history is saved only in this browser, at this web address. Clearing browser data erases it, and
+          another browser or computer starts empty. Use <strong>Settings → Export stats</strong> now and then, and{' '}
+          <strong>Import stats</strong> to restore it or move it somewhere else.
         </p>
       </section>
     </div>
